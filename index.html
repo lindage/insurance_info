@@ -29,6 +29,7 @@
             background-color: var(--light-gray);
             color: var(--text-color);
             padding: 10px;
+            overflow-y: scroll; /* 始终显示滚动条，避免页面宽度变化 */
         }
         
         .container {
@@ -44,6 +45,7 @@
             box-shadow: var(--shadow);
             margin-bottom: 20px;
             overflow: hidden;
+            min-height: 500px;
         }
         
         .insurance-summary h2 {
@@ -71,6 +73,7 @@
             position: relative;
             padding: 0 40px;
             overflow: hidden;
+            min-height: 180px;
         }
         
         /* 修改横向滚动容器 */
@@ -395,77 +398,859 @@
         .scroll-right {
             right: 5px;
         }
+
+        /* 在 <style> 部分添加导航栏样式 */
+        .main-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nav-sidebar {
+            width: 200px;
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-right: 15px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .nav-header {
+            background-color: var(--secondary-color);
+            color: var(--white);
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        .nav-item:last-child {
+            border-bottom: none;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 15px;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 15px;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(6, 193, 174, 0.08);
+            color: var(--secondary-color);
+        }
+
+        .nav-link.active {
+            background-color: rgba(6, 193, 174, 0.1);
+            color: var(--secondary-color);
+            border-left: 3px solid var(--secondary-color);
+            font-weight: 500;
+        }
+
+        .content-area {
+            flex-grow: 1;
+        }
+
+        /* 修改容器样式，移除独立padding */
+        .container {
+            padding: 0;
+        }
+
+        /* 添加内容页面样式 */
+        .page-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            min-height: 300px; /* 确保内容区域有最小高度 */
+        }
+
+        .page-content.active {
+            opacity: 1;
+            display: block;
+        }
+
+        /* 为空页面添加样式 */
+        .empty-page {
+            background-color: var(--white);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .empty-page h2 {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+
+        .empty-page p {
+            color: var(--dark-gray);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .empty-page i {
+            font-size: 4rem;
+            color: var(--medium-gray);
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        /* 二级导航容器 */
+        .subnav-container {
+            margin: 20px 0;
+            border-bottom: 1px solid #e0e0e0;
+            min-height: 43px; /* 设置最小高度与实际高度匹配 */
+        }
+        
+        /* 二级导航标签列表 */
+        .subnav-tabs {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-x: auto;
+        }
+        
+        /* 二级导航标签项 */
+        .subnav-tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .subnav-tab:hover {
+            color: var(--primary-color);
+        }
+        
+        .subnav-tab.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+            font-weight: bold;
+        }
+        
+        /* 子页面样式 */
+        .subpage {
+            opacity: 0;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .subpage.active {
+            opacity: 1;
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* 页面加载遮罩 */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loader-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(6, 193, 174, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--secondary-color);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 保险信息介绍汇总 -->
-        <div class="insurance-summary">
-            <h2>保险知识梳理</h2>
-            <div class="summary-content">
-                <p>保险是一种风险管理工具，通过支付一定的保费，将潜在的风险损失转移给保险公司。以下是主要保险类型的总体介绍：</p>
-                
-                <!-- 滚动容器包装 -->
-                <div class="scroll-container">
-                    <div class="scroll-arrow scroll-left">
-                        <i class="fas fa-chevron-left"></i>
-                    </div>
-                    
-                    <div class="summary-grid" id="insurance-modules">
-                        <!-- 模块内容由JavaScript动态生成 -->
-                    </div>
-                    
-                    <div class="scroll-arrow scroll-right">
-                        <i class="fas fa-chevron-right"></i>
-                    </div>
-                </div>
-                
-                <!-- 滚动指示器 -->
-                <div class="scroll-indicator" id="scroll-indicator">
-                    <!-- 指示器点由JavaScript动态生成 -->
-                </div>
-                
-                <!-- 详细内容区域 -->
-                <div class="detail-section" id="detail-section">
-                    <div class="detail-header">
-                        <h3 class="detail-title" id="detail-title">人身保障</h3>
-                        <div class="detail-actions">
-                            <!-- Removed the edit button -->
+    <div class="main-container">
+        <!-- 左侧导航栏 -->
+        <div class="nav-sidebar">
+            <div class="nav-header">
+                保险知识中心
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#overview" class="nav-link" data-target="overview-page">保险概述</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#internet" class="nav-link" data-target="internet-page">互联网保险</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#ant" class="nav-link" data-target="ant-page">蚂蚁保</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#common" class="nav-link active" data-target="common-page">常见险种</a>
+                </li>
+            </ul>
+        </div>
+        
+        <!-- 内容区域 -->
+        <div class="content-area">
+            <!-- 保险概述页面 -->
+            <div id="overview-page" class="page-content">
+                <div class="insurance-summary">
+                    <h2>保险概述</h2>
+                    <div class="summary-content">
+                        <p>保险是通过风险转移机制为个人或企业提供经济保障的金融工具，主要分为人身险（如寿险、健康险）和财产险（如车险、财产损失险）。其核心在于通过精算模型分摊风险，确保投保人在意外事件中获得补偿。</p>
+                        
+                        <!-- 添加二级导航 -->
+                        <div class="subnav-container">
+                            <ul class="subnav-tabs" id="overview-tabs">
+                                <li class="subnav-tab active" data-target="overview-intro">基本概念</li>
+                                <li class="subnav-tab" data-target="overview-functions">核心功能与分类</li>
+                                <li class="subnav-tab" data-target="overview-channels">保险渠道演变</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 1. 基本概念 -->
+                        <div id="overview-intro" class="subpage active">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">保险基本概念</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <h4>什么是保险</h4>
+                                    <p>保险是一种经济补偿制度，通过向保险公司支付一定金额的保费，在约定的风险事件发生时获得经济补偿。</p>
+                                    
+                                    <div style="display: flex; gap: 20px; margin: 15px 0;">
+                                        <div style="flex: 1; background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px; text-align: center;">
+                                            <i class="fas fa-exchange-alt" style="font-size: 2rem; color: var(--secondary-color); margin-bottom: 10px;"></i>
+                                            <h4>风险转移</h4>
+                                            <p style="text-align: center; background: none; border: none; padding: 0;">将个人或企业的风险责任转移给保险公司</p>
+                                        </div>
+                                        
+                                        <div style="flex: 1; background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px; text-align: center;">
+                                            <i class="fas fa-users" style="font-size: 2rem; color: var(--secondary-color); margin-bottom: 10px;"></i>
+                                            <h4>风险共担</h4>
+                                            <p style="text-align: center; background: none; border: none; padding: 0;">通过多数人的保费支付少数人的损失</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <h4>保险的特点</h4>
+                                    <ul>
+                                        <li><strong>风险分摊</strong>：将个体风险分散到群体中</li>
+                                        <li><strong>有偿合同</strong>：支付保费才能获得保障</li>
+                                        <li><strong>概率计算</strong>：基于大数法则计算风险发生率</li>
+                                        <li><strong>条件赔付</strong>：仅在约定风险发生时才赔付</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 2. 核心功能与分类 -->
+                        <div id="overview-functions" class="subpage">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">保险的核心功能与分类</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <h4>保险的基本原则</h4>
+                                    <ul>
+                                        <li><strong>风险转移</strong>：将个人或企业面临的不确定风险转移给保险公司</li>
+                                        <li><strong>大数法则</strong>：通过大量同质风险的集合，使损失可以预测</li>
+                                        <li><strong>互济共摊</strong>：所有投保人共同分担少数人的损失</li>
+                                        <li><strong>最大诚信原则</strong>：投保人与保险公司需如实告知相关信息</li>
+                                    </ul>
+
+                                    <h4>保险的主要分类</h4>
+                                    <ul>
+                                        <li><strong>人身保险</strong>：以人的生命或身体作为保险标的，包括人寿保险、健康保险、意外伤害保险等</li>
+                                        <li><strong>财产保险</strong>：以财产及其相关利益作为保险标的，包括车险、家财险、企业财产险等</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 3. 传统保险渠道 -->
+                        <div id="overview-channels" class="subpage">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">传统保险渠道的演变</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <div class="channel-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 10px;">
+                                        <div class="channel-item" style="background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px;">
+                                            <h4><i class="fas fa-globe" style="color: var(--secondary-color); margin-right: 8px;"></i> 保险公司官网</h4>
+                                            <p>直接购买，产品单一但可靠，适合明确需求的消费者。</p>
+                                            <div style="font-size: 13px; color: var(--dark-gray); margin-top: 10px;">
+                                                <span style="display: inline-block; background-color: rgba(6, 193, 174, 0.1); padding: 3px 8px; border-radius: 12px; margin-right: 5px;">便捷直接</span>
+                                                <span style="display: inline-block; background-color: rgba(6, 193, 174, 0.1); padding: 3px 8px; border-radius: 12px;">可靠性高</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="channel-item" style="background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px;">
+                                            <h4><i class="fas fa-user-tie" style="color: var(--secondary-color); margin-right: 8px;"></i> 保险代理人</h4>
+                                            <p>提供个性化服务，但局限于代理公司产品，佣金可能影响价格。</p>
+                                            <div style="font-size: 13px; color: var(--dark-gray); margin-top: 10px;">
+                                                <span style="display: inline-block; background-color: rgba(6, 193, 174, 0.1); padding: 3px 8px; border-radius: 12px; margin-right: 5px;">个性化咨询</span>
+                                                <span style="display: inline-block; background-color: rgba(6, 193, 174, 0.1); padding: 3px 8px; border-radius: 12px;">产品有限</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="channel-item" style="background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px;">
+                                            <h4><i class="fas fa-building" style="color: var(--secondary-color); margin-right: 8px;"></i> 保险经纪公司</h4>
+                                            <p>代理多公司产品，需警惕经纪人专业性不足的问题。</p>
+                                            <div style="font-size: 13px; color: var(--dark-gray); margin-top: 10px;">
+                                                <span style="display: inline-block; background-color: rgba(6, 193, 174, 0.1); padding: 3px 8px; border-radius: 12px; margin-right: 5px;">选择多样</span>
+                                                <span style="display: inline-block; background-color: rgba(6, 193, 174, 0.1); padding: 3px 8px; border-radius: 12px;">比价方便</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="detail-content" id="detail-content">
-                        <!-- 内容由JavaScript动态生成 -->
-                    </div>
-                    
-                    <!-- 编辑表单 -->
-                    <div class="edit-form" id="detail-edit-form">
-                        <div class="form-group">
-                            <label class="form-label">内容</label>
-                            <textarea class="form-input form-textarea" id="detail-edit-content"></textarea>
+                </div>
+            </div>
+            
+            <!-- 互联网保险页面 -->
+            <div id="internet-page" class="page-content">
+                <div class="insurance-summary">
+                    <h2>互联网保险</h2>
+                    <div class="summary-content">
+                        <p>互联网保险利用数字化渠道销售保险产品，具有便捷、高效、低成本的特点。互联网保险通过技术手段改变了传统保险的销售和服务模式，为消费者提供了全新的投保体验。</p>
+                        
+                        <!-- 添加二级导航 -->
+                        <div class="subnav-container">
+                            <ul class="subnav-tabs" id="internet-tabs">
+                                <li class="subnav-tab active" data-target="internet-market">发展现状与市场规模</li>
+                                <li class="subnav-tab" data-target="internet-tech">技术驱动的创新与优势</li>
+                                <li class="subnav-tab" data-target="internet-regulation">监管与合规性强化</li>
+                                <li class="subnav-tab" data-target="internet-challenges">现存问题与挑战</li>
+                                <li class="subnav-tab" data-target="internet-tips">消费者购买建议</li>
+                                <li class="subnav-tab" data-target="internet-future">未来发展趋势</li>
+                            </ul>
                         </div>
-                        <div class="form-actions">
-                            <button class="detail-action-btn" id="cancel-detail-edit">取消</button>
-                            <button class="detail-action-btn primary" id="save-detail-edit">保存</button>
+                        
+                        <!-- 1. 发展现状与市场规模 -->
+                        <div id="internet-market" class="subpage active">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">发展现状与市场规模</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
+                                        <div style="background-color: rgba(6, 193, 174, 0.1); border-radius: 12px; padding: 15px; text-align: center; width: 80%;">
+                                            <h4 style="color: var(--secondary-color); margin-bottom: 10px;">市场增长趋势</h4>
+                                            <p>互联网保险保费规模从2013年的290亿元增至2023年的4949亿元，年均增速达32%，预计未来5年将突破万亿大关。</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                                        <div style="flex: 1; background-color: var(--light-gray); border-radius: 8px; padding: 15px;">
+                                            <h4><i class="fas fa-users" style="color: var(--secondary-color); margin-right: 8px;"></i> 用户群体</h4>
+                                            <p>"80后""90后"占比超75%，偏好自主选择与便捷流程。</p>
+                                        </div>
+                                        
+                                        <div style="flex: 1; background-color: var(--light-gray); border-radius: 8px; padding: 15px;">
+                                            <h4><i class="fas fa-map-marker-alt" style="color: var(--secondary-color); margin-right: 8px;"></i> 区域分布</h4>
+                                            <p>广东省互联网保险企业数量居首（占全国38.7%），北京、山东、湖南紧随其后。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 2. 技术驱动的创新与优势 -->
+                        <div id="internet-tech" class="subpage">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">技术驱动的创新与优势</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <h4>精准营销</h4>
+                                    <p>通过大数据与AI技术分析用户画像，推送定制化产品（如针对网购场景的运费险）。</p>
+                                    
+                                    <h4>智能化服务</h4>
+                                    <p>AI核保、智能理赔系统缩短流程，小额案件可快速赔付。</p>
+                                    
+                                    <h4>产品创新</h4>
+                                    <ul>
+                                        <li><strong>场景化险种</strong>：航班延误险、手机碎屏险等满足细分需求</li>
+                                        <li><strong>普惠型产品</strong>：保费低、覆盖广，如"惠民保"类医疗险</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 3. 监管与合规性强化 -->
+                        <div id="internet-regulation" class="subpage">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">监管与合规性强化</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                                        <div style="background-color: rgba(255, 210, 0, 0.08); border-radius: 8px; padding: 15px;">
+                                            <h4><i class="fas fa-id-card" style="color: var(--primary-color); margin-right: 8px;"></i> 牌照管理</h4>
+                                            <p>银保监会要求互联网保险平台必须持牌经营，产品需备案审核。</p>
+                                        </div>
+                                        
+                                        <div style="background-color: rgba(255, 210, 0, 0.08); border-radius: 8px; padding: 15px;">
+                                            <h4><i class="fas fa-eye" style="color: var(--primary-color); margin-right: 8px;"></i> 透明度提升</h4>
+                                            <p>2024年新规要求平台清晰展示免责条款、理赔条件，禁止强制搭售。</p>
+                                        </div>
+                                        
+                                        <div style="background-color: rgba(255, 210, 0, 0.08); border-radius: 8px; padding: 15px;">
+                                            <h4><i class="fas fa-shield-alt" style="color: var(--primary-color); margin-right: 8px;"></i> 消费者权益保护</h4>
+                                            <p>建立销售行为可回溯制度，减少误导宣传。</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 4. 现存问题与挑战 -->
+                        <div id="internet-challenges" class="subpage">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">现存问题与挑战</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <ul>
+                                        <li><strong>信息不对称</strong>：消费者对复杂条款理解困难，易引发理赔纠纷（如高免赔额医疗险）</li>
+                                        <li><strong>道德风险</strong>：投保人隐瞒健康状况、保险公司设计"伪需求"产品（如缺乏科学依据的网红险）</li>
+                                        <li><strong>法律法规滞后</strong>：消费者隐私保护、跨境互联网保险监管等仍需完善</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 5. 消费者购买建议 -->
+                        <div id="internet-tips" class="subpage">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">消费者购买建议</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                                        <thead>
+                                            <tr style="background-color: rgba(6, 193, 174, 0.1);">
+                                                <th style="padding: 12px; border: 1px solid #e0e0e0; text-align: left;">步骤</th>
+                                                <th style="padding: 12px; border: 1px solid #e0e0e0; text-align: left;">关键行动</th>
+                                                <th style="padding: 12px; border: 1px solid #e0e0e0; text-align: left;">风险规避</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;"><strong>需求分析</strong></td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">明确保障目标（如重疾、财产损失）</td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">避免被广告误导，警惕"全保"类不实宣传</td>
+                                            </tr>
+                                            <tr style="background-color: rgba(245, 245, 245, 0.5);">
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;"><strong>平台选择</strong></td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">验证平台资质（银保监会官网可查）</td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">警惕非正规平台，避免信息泄露</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;"><strong>条款审查</strong></td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">重点阅读"免责条款""理赔条件"</td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">利用平台智能解读功能或咨询在线客服</td>
+                                            </tr>
+                                            <tr style="background-color: rgba(245, 245, 245, 0.5);">
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;"><strong>健康告知</strong></td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">如实填写病史，避免遗漏</td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">保留健康检查报告作为佐证</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 6. 未来发展趋势 -->
+                        <div id="internet-future" class="subpage">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">未来发展趋势</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <div style="display: flex; gap: 15px; margin-top: 10px;">
+                                        <div style="flex: 1; background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; align-items: center;">
+                                            <i class="fas fa-microchip" style="font-size: 2rem; color: var(--secondary-color); margin-bottom: 10px;"></i>
+                                            <h4 style="text-align: center;">技术深化</h4>
+                                            <p style="text-align: center;">区块链技术用于保单存证，AI客服提升咨询效率</p>
+                                        </div>
+                                        
+                                        <div style="flex: 1; background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; align-items: center;">
+                                            <i class="fas fa-network-wired" style="font-size: 2rem; color: var(--secondary-color); margin-bottom: 10px;"></i>
+                                            <h4 style="text-align: center;">生态融合</h4>
+                                            <p style="text-align: center;">与医疗、汽车等行业联动，开发"保险+服务"模式</p>
+                                        </div>
+                                        
+                                        <div style="flex: 1; background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; align-items: center;">
+                                            <i class="fas fa-balance-scale" style="font-size: 2rem; color: var(--secondary-color); margin-bottom: 10px;"></i>
+                                            <h4 style="text-align: center;">监管升级</h4>
+                                            <p style="text-align: center;">动态调整政策，应对跨境保险、元宇宙虚拟资产等新场景风险</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="summary-tips">
-                    <h4><i class="fas fa-lightbulb"></i> 投保建议</h4>
-                    <ul>
-                        <li>先保障，后理财</li>
-                        <li>根据个人/家庭风险需求合理配置</li>
-                        <li>充分了解保险条款和除外责任</li>
-                        <li>选择稳健、服务良好的保险公司</li>
-                    </ul>
+            </div>
+            
+            <!-- 蚂蚁保页面 -->
+            <div id="ant-page" class="page-content">
+                <div class="insurance-summary">
+                    <h2>蚂蚁保</h2>
+                    <div class="summary-content">
+                        <p>蚂蚁保（全称蚂蚁保险代理有限公司）是蚂蚁集团旗下的互联网保险服务平台，持有银保监会颁发的《保险代理业务许可证》。作为持牌保险中介机构，蚂蚁保通过打通支付宝生态，整合90余家保险公司产品，为用户提供便捷的保险购买和服务体验。</p>
+                        
+                        <!-- 添加二级导航 -->
+                        <div class="subnav-container">
+                            <ul class="subnav-tabs" id="ant-tabs">
+                                <li class="subnav-tab active" data-target="ant-identity">机构性质与业务定位</li>
+                                <li class="subnav-tab" data-target="ant-features">平台特点与优势</li>
+                                <li class="subnav-tab" data-target="ant-products">产品矩阵</li>
+                                <li class="subnav-tab" data-target="ant-innovation">创新与社会价值</li>
+                                <li class="subnav-tab" data-target="ant-rights">用户权益与监管保障</li>
+                                <li class="subnav-tab" data-target="ant-guide">用户使用指南</li>
+                            </ul>
+                        </div>
+                        
+                        <!-- 1. 机构性质与业务定位 -->
+                        <div id="ant-identity" class="subpage active">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">机构性质与业务定位</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <h4>法律身份</h4>
+                                    <ul>
+                                        <li><strong>持牌中介机构</strong>：蚂蚁保持有《经营保险代理业务许可证》，是经监管部门批准设立的保险代理平台</li>
+                                        <li><strong>代理性质</strong>：不同于保险公司，蚂蚁保自身不开发保险产品，不承保风险，而是代理销售合作保险公司的产品</li>
+                                        <li><strong>业务范围</strong>：覆盖车险、健康险、意外险、财产险等全品类险种，用户可在平台完成保险全生命周期管理</li>
+                                    </ul>
+
+                                    <div style="background-color: rgba(255, 210, 0, 0.08); border-radius: 8px; padding: 15px; margin: 15px 0;">
+                                        <p style="background: none; border-left: none; padding: 0;">蚂蚁保目前与90余家保险公司（如中国人寿、平安健康、太平洋保险）建立合作关系，提供数百款保险产品，用户可通过支付宝App一站式完成投保、理赔等操作。</p>
+                                    </div>
+
+                                    <h4>与传统保险经纪公司的差异</h4>
+                                    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                                        <thead>
+                                            <tr style="background-color: rgba(6, 193, 174, 0.1);">
+                                                <th style="padding: 12px; border: 1px solid #e0e0e0; text-align: left;">对比维度</th>
+                                                <th style="padding: 12px; border: 1px solid #e0e0e0; text-align: left;">传统保险经纪公司</th>
+                                                <th style="padding: 12px; border: 1px solid #e0e0e0; text-align: left;">蚂蚁保</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;"><strong>服务形式</strong></td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">线下代理为主，提供定制化方案</td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">纯线上平台，标准化产品为主</td>
+                                            </tr>
+                                            <tr style="background-color: rgba(245, 245, 245, 0.5);">
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;"><strong>产品范围</strong></td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">聚焦特定险种或企业客户</td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">覆盖个人及家庭全险种</td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;"><strong>技术应用</strong></td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">依赖人工服务，技术投入有限</td>
+                                                <td style="padding: 12px; border: 1px solid #e0e0e0;">大数据风控、智能理赔等科技深度应用</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 2. 平台特点与优势 -->
+                        <div id="ant-features" class="subpage">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">平台特点与优势</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+                                        <div style="background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; align-items: center;">
+                                            <i class="fas fa-mobile-alt" style="font-size: 2rem; color: var(--secondary-color); margin-bottom: 10px;"></i>
+                                            <h4 style="text-align: center;">全流程数字化</h4>
+                                            <p style="text-align: center;">支付宝App一站式完成投保、保单管理和理赔全流程</p>
+                                        </div>
+                                        
+                                        <div style="background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; align-items: center;">
+                                            <i class="fas fa-shield-alt" style="font-size: 2rem; color: var(--secondary-color); margin-bottom: 10px;"></i>
+                                            <h4 style="text-align: center;">智能风控</h4>
+                                            <p style="text-align: center;">升级的AI风控系统，提高理赔安全性的同时大幅提升效率</p>
+                                        </div>
+                                        
+                                        <div style="background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; align-items: center;">
+                                            <i class="fas fa-bolt" style="font-size: 2rem; color: var(--secondary-color); margin-bottom: 10px;"></i>
+                                            <h4 style="text-align: center;">极速理赔</h4>
+                                            <p style="text-align: center;">小额医疗理赔最快3分钟到账，90%案件当日完成</p>
+                                        </div>
+                                    </div>
+
+                                    <h4>科技赋能保险服务</h4>
+                                    <ul>
+                                        <li><strong>智能核保</strong>：通过AI简化健康告知流程，快速匹配用户需求</li>
+                                        <li><strong>理赔大脑</strong>：能识别107种医疗凭证，自动处理70%以上理赔案件，大幅提升效率</li>
+                                        <li><strong>金选模型</strong>：基于投保门槛、保障范围等维度筛选高性价比产品（如"好医保"百万医疗险）</li>
+                                        <li><strong>大模型应用</strong>：引入AI大模型技术，实现保险条款智能解读和个性化推荐</li>
+                                        <li><strong>区块链保单存证</strong>：所有保单信息均上链存储，确保数据不可篡改，方便用户随时查验</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 3. 产品矩阵 -->
+                        <div id="ant-products" class="subpage">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">产品矩阵</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
+                                        <div style="flex: 1; min-width: 250px; background-color: var(--light-gray); border-radius: 8px; padding: 15px;">
+                                            <h4><i class="fas fa-medkit" style="color: var(--secondary-color); margin-right: 8px;"></i> 数字健康险</h4>
+                                            <p>全新升级的健康保险产品，结合可穿戴设备数据，提供个性化保障方案和健康管理服务，保费可随健康状况动态调整。</p>
+                                            <div style="margin-top: 10px; font-size: 13px; color: var(--dark-gray);">
+                                                <span style="display: inline-block; background-color: rgba(255, 210, 0, 0.1); padding: 3px 8px; border-radius: 12px; margin-right: 5px;">健康数据驱动</span>
+                                                <span style="display: inline-block; background-color: rgba(255, 210, 0, 0.1); padding: 3px 8px; border-radius: 12px;">保费灵活调整</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style="flex: 1; min-width: 250px; background-color: var(--light-gray); border-radius: 8px; padding: 15px;">
+                                            <h4><i class="fas fa-heartbeat" style="color: var(--secondary-color); margin-right: 8px;"></i> 智慧百万医疗</h4>
+                                            <p>高保额低保费的医疗保险，增加了智能就医导诊、线上问诊和药品配送等服务，实现"保险+医疗"一体化服务。</p>
+                                            <div style="margin-top: 10px; font-size: 13px; color: var(--dark-gray);">
+                                                <span style="display: inline-block; background-color: rgba(255, 210, 0, 0.1); padding: 3px 8px; border-radius: 12px; margin-right: 5px;">医疗资源对接</span>
+                                                <span style="display: inline-block; background-color: rgba(255, 210, 0, 0.1); padding: 3px 8px; border-radius: 12px;">智能理赔</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px;">
+                                        <div style="flex: 1; min-width: 250px; background-color: var(--light-gray); border-radius: 8px; padding: 15px;">
+                                            <h4><i class="fas fa-umbrella" style="color: var(--secondary-color); margin-right: 8px;"></i> 城市定制险</h4>
+                                            <p>已覆盖全国超过150个城市的特色医疗保险产品，针对不同城市医疗资源和居民需求定制，与当地医保深度融合，年保费约200-300元。</p>
+                                            <div style="margin-top: 10px; font-size: 13px; color: var(--dark-gray);">
+                                                <span style="display: inline-block; background-color: rgba(255, 210, 0, 0.1); padding: 3px 8px; border-radius: 12px; margin-right: 5px;">地方定制</span>
+                                                <span style="display: inline-block; background-color: rgba(255, 210, 0, 0.1); padding: 3px 8px; border-radius: 12px;">医保协同</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div style="flex: 1; min-width: 250px; background-color: var(--light-gray); border-radius: 8px; padding: 15px;">
+                                            <h4><i class="fas fa-life-ring" style="color: var(--secondary-color); margin-right: 8px;"></i> 数字消费场景险</h4>
+                                            <p>新一代场景化保险，包括数字旅行保障、电子设备保障、在线购物保障等，全面覆盖数字生活场景，保费低至几元。</p>
+                                            <div style="margin-top: 10px; font-size: 13px; color: var(--dark-gray);">
+                                                <span style="display: inline-block; background-color: rgba(255, 210, 0, 0.1); padding: 3px 8px; border-radius: 12px; margin-right: 5px;">场景触发</span>
+                                                <span style="display: inline-block; background-color: rgba(255, 210, 0, 0.1); padding: 3px 8px; border-radius: 12px;">全自动理赔</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 4. 创新与社会价值 -->
+                        <div id="ant-innovation" class="subpage">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">创新与社会价值</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <h4>数字普惠金融案例</h4>
+                                    <div style="background-color: rgba(255, 210, 0, 0.08); border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+                                        <p style="background: none; border-left: none; padding: 0;">蚂蚁保通过城市定制险项目已覆盖超过3亿用户，其中超过40%来自三线及以下城市和农村地区，有效解决了这些地区居民的医疗保障缺口问题，成为数字普惠金融的典型案例。</p>
+                                    </div>
+                                    
+                                    <h4>技术驱动理赔创新</h4>
+                                    <ul>
+                                        <li><strong>OCR+大模型理赔</strong>：结合OCR识别和大模型技术，实现医疗单据的自动识别、分类和审核，简单案件3分钟内完成赔付</li>
+                                        <li><strong>多级风控系统</strong>：引入人脸识别、活体检测等技术，有效防止欺诈理赔，保证理赔公平公正</li>
+                                        <li><strong>医保数据联动</strong>：已与全国250+城市的医保系统实现数据对接，用户只需操作一次即可完成医保和商保的双重理赔</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 5. 用户权益与监管保障 -->
+                        <div id="ant-rights" class="subpage">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">用户权益与监管保障</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <h4>合规性验证</h4>
+                                    <ul>
+                                        <li><strong>资质查询</strong>：用户可通过保险中介监管信息系统查询蚂蚁保的备案信息，验证资质真实性</li>
+                                        <li><strong>产品监管</strong>：所有代理产品均需在银保监会备案，理赔由合作保险公司直接负责</li>
+                                        <li><strong>合规经营</strong>：作为持牌机构，需遵守严格的监管规定，保障用户权益</li>
+                                    </ul>
+
+                                    <div style="background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px; margin: 15px 0;">
+                                        <h4 style="text-align: center; margin-bottom: 10px;"><i class="fas fa-exclamation-triangle" style="color: var(--primary-color); margin-right: 8px;"></i>风险提示</h4>
+                                        <ul style="background: none; padding-left: 20px;">
+                                            <li>投保时需仔细阅读条款，重点关注<strong>健康告知</strong>、<strong>免责范围</strong>等细节（如部分产品限制特定疾病）</li>
+                                            <li>避免通过非官方渠道（如第三方代理）购买，以防信息泄露或诈骗</li>
+                                            <li>警惕"高返佣"诱导，优先选择透明化产品</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 6. 用户使用指南 -->
+                        <div id="ant-guide" class="subpage">
+                            <div class="detail-section active">
+                                <div class="detail-header">
+                                    <h3 class="detail-title">用户使用指南</h3>
+                                </div>
+                                <div class="detail-content">
+                                    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                                        <div style="flex: 1; background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px;">
+                                            <h4>如何选择合适的蚂蚁保产品</h4>
+                                            <ol style="padding-left: 20px;">
+                                                <li>使用支付宝App"保险服务"中的智能顾问功能进行风险评估</li>
+                                                <li>优先配置基础医疗和意外保障，再考虑专项保障</li>
+                                                <li>查看"大家都在买"栏目，了解同龄人的保险配置</li>
+                                                <li>利用"条款解读"功能，了解产品的具体保障范围</li>
+                                            </ol>
+                                        </div>
+                                        
+                                        <div style="flex: 1; background-color: rgba(6, 193, 174, 0.05); border-radius: 8px; padding: 15px;">
+                                            <h4>极速理赔攻略</h4>
+                                            <ol style="padding-left: 20px;">
+                                                <li>支付宝App进入"我的保障"，选择"一键理赔"功能</li>
+                                                <li>拍摄医疗单据（新增多单据一次性上传功能）</li>
+                                                <li>系统自动识别单据信息并匹配保单</li>
+                                                <li>确认信息无误后提交，小额案件最快3分钟到账</li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="summary-tips" style="margin-top: 20px;">
+                                        <h4><i class="fas fa-lightbulb"></i> 蚂蚁保使用小贴士</h4>
+                                        <ul>
+                                            <li>使用支付宝首页"保险服务"中的"保障测评"功能，获取个性化保险配置建议</li>
+                                            <li>购买百万医疗险时，优先选择"医疗资源直付"功能的产品，可免去垫付医疗费用的麻烦</li>
+                                            <li>开通支付宝"电子医保凭证"，实现医保与商保一站式理赔</li>
+                                            <li>定期查看"保障日历"提醒，避免保险过期造成保障空档</li>
+                                            <li>投保前可通过银保监会官网验证蚂蚁保的资质及产品备案情况</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 常见险种页面 - 这是原来的内容 -->
+            <div id="common-page" class="page-content active">
+                <div class="container">
+                    <!-- 保险信息介绍汇总 -->
+                    <div class="insurance-summary">
+                        <h2>保险知识梳理</h2>
+                        <div class="summary-content">
+                            <p>保险是一种风险管理工具，通过支付一定的保费，将潜在的风险损失转移给保险公司。以下是主要保险类型的总体介绍：</p>
+                            
+                            <!-- 滚动容器包装 -->
+                            <div class="scroll-container">
+                                <div class="scroll-arrow scroll-left">
+                                    <i class="fas fa-chevron-left"></i>
+                                </div>
+                                
+                                <div class="summary-grid" id="insurance-modules">
+                                    <!-- 模块内容由JavaScript动态生成 -->
+                                </div>
+                                
+                                <div class="scroll-arrow scroll-right">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </div>
+                            
+                            <!-- 滚动指示器 -->
+                            <div class="scroll-indicator" id="scroll-indicator">
+                                <!-- 指示器点由JavaScript动态生成 -->
+                            </div>
+                            
+                            <!-- 详细内容区域 -->
+                            <div class="detail-section" id="detail-section">
+                                <div class="detail-header">
+                                    <h3 class="detail-title" id="detail-title">人身保障</h3>
+                                    <div class="detail-actions">
+                                        <!-- Removed the edit button -->
+                                    </div>
+                                </div>
+                                <div class="detail-content" id="detail-content">
+                                    <!-- 内容由JavaScript动态生成 -->
+                                </div>
+                                
+                                <!-- 编辑表单 -->
+                                <div class="edit-form" id="detail-edit-form">
+                                    <div class="form-group">
+                                        <label class="form-label">内容</label>
+                                        <textarea class="form-input form-textarea" id="detail-edit-content"></textarea>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button class="detail-action-btn" id="cancel-detail-edit">取消</button>
+                                        <button class="detail-action-btn primary" id="save-detail-edit">保存</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="summary-tips">
+                                <h4><i class="fas fa-lightbulb"></i> 投保建议</h4>
+                                <ul>
+                                    <li>先保障，后理财</li>
+                                    <li>根据个人/家庭风险需求合理配置</li>
+                                    <li>充分了解保险条款和除外责任</li>
+                                    <li>选择稳健、服务良好的保险公司</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 模块编辑弹窗 - Hidden -->
+                    <div id="module-edit-modal" style="display: none !important; /* Force hide modal */"> 
+                        <!-- Modal contents kept but hidden -->
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <!-- 模块编辑弹窗 - Hidden -->
-        <div id="module-edit-modal" style="display: none !important; /* Force hide modal */"> 
-            <!-- Modal contents kept but hidden -->
-        </div>
+    </div>
+
+    <!-- 添加页面加载遮罩 -->
+    <div class="page-loader" id="pageLoader">
+        <div class="loader-spinner"></div>
     </div>
 
     <script>
@@ -473,7 +1258,7 @@
         let insuranceData = [
             {
                 id: 1,
-                title: "机动车保险（车险）",
+                title: "车险",
                 description: "保障车辆及第三方在交通事故中的经济损失",
                 icon: "fa-car",
                 detail: `
@@ -498,10 +1283,6 @@
                     <ul>
                         <li><strong>虚构标的或事故</strong>：如伪造车辆事故、虚构疾病诊断。</li>
                         <li><strong>夸大损失</strong>：故意扩大财产损失程度，或虚增医疗费用。</li>
-                        <li><strong>内外勾结</strong>：保险公司员工与外部人员串通，提供虚假证明材料。</li>
-                        <li><strong>重复投保</strong>：在多家公司投保同一险种，骗取多重赔付。</li>
-                        <li><strong>冒名顶替</strong>：酒驾或无证驾驶后，让合规驾驶员顶替报案。</li>
-                        <li><strong>先出险后投保</strong>：事故发生后补买车险，并谎报出险时间。</li>
                     </ul>
                 `
             },
@@ -585,7 +1366,7 @@
                     </ul>
                     <h4>骗赔手段：</h4>
                     <ul>
-                        <li><strong>‌伪造身故/伤残证明</strong>：‌串通医疗机构开具虚假死亡证明或夸大伤残等级（如伪造意外事故导致全残。</li>
+                        <li><strong>‌伪造身故/伤残证明</strong>：‌串通医疗机构开具虚假死亡证明或夸大伤残等级（如伪造意外事故导致全残）。</li>
                         <li><strong>‌投保后故意制造事故</strong>：投保后自导自演自杀、溺水等事故（需注意保险合同中自杀条款通常有2年免责期）‌。</li>
                     </ul>
                 `
@@ -608,21 +1389,8 @@
             }
         ];
         
-        // 保存数据到localStorage
-        function saveInsuranceData() {
-            localStorage.setItem('insuranceData', JSON.stringify(insuranceData));
-        }
-        
-        // 从localStorage加载数据
-        function loadInsuranceData() {
-            const savedData = localStorage.getItem('insuranceData');
-            if (savedData) {
-                insuranceData = JSON.parse(savedData);
-            }
-        }
-        
         // 当前选中的模块ID
-        let currentModuleId = 1;
+        let currentModuleId = parseInt(sessionStorage.getItem('currentInsuranceModule')) || 1;
         // 当前编辑的模块ID
         let editingModuleId = null;
         // 当前显示的页码
@@ -630,11 +1398,15 @@
         // 每页显示的模块数量
         const itemsPerPage = 4;
         // 总页数
-        const totalPages = Math.ceil(7 / itemsPerPage);
+        const totalPages = Math.ceil(insuranceData.length / itemsPerPage);
+        // 是否已完成初始化
+        let isInitialized = false;
         
         // 渲染保险模块
         function renderInsuranceModules() {
             const modulesContainer = document.getElementById('insurance-modules');
+            if (!modulesContainer) return;
+            
             modulesContainer.innerHTML = '';
             
             insuranceData.forEach(module => {
@@ -670,6 +1442,9 @@
                     module.classList.remove('active');
                 }
             });
+            
+            // 保存当前选中的模块ID到sessionStorage
+            sessionStorage.setItem('currentInsuranceModule', currentModuleId);
         }
         
         // 显示模块详情
@@ -677,6 +1452,8 @@
             const detailSection = document.getElementById('detail-section');
             const detailTitle = document.getElementById('detail-title');
             const detailContent = document.getElementById('detail-content');
+            
+            if (!detailSection || !detailTitle || !detailContent) return;
             
             detailTitle.textContent = module.title;
             detailContent.innerHTML = module.detail;
@@ -687,6 +1464,8 @@
         // 更新滚动指示器
         function updateScrollIndicator() {
             const container = document.getElementById('scroll-indicator');
+            if (!container) return;
+            
             container.innerHTML = '';
             
             // 创建与总页数相同的指示点
@@ -705,9 +1484,14 @@
         
         // 滚动到指定页面
         function scrollToPage(pageIndex) {
-            currentPage = pageIndex;
             const modulesContainer = document.getElementById('insurance-modules');
-            const moduleWidth = modulesContainer.querySelector('.summary-item').offsetWidth + 16; // 16px是间隙
+            if (!modulesContainer) return;
+            
+            const moduleItems = modulesContainer.querySelectorAll('.summary-item');
+            if (moduleItems.length === 0) return;
+            
+            currentPage = pageIndex;
+            const moduleWidth = moduleItems[0].offsetWidth + 16; // 16px是间隙
             const scrollPosition = pageIndex * moduleWidth * itemsPerPage;
             
             modulesContainer.scrollTo({
@@ -725,11 +1509,144 @@
                 }
             });
         }
+
+        // 根据URL的hash导航到对应页面
+        function navigateBasedOnHash() {
+            const hash = window.location.hash || '#common'; // 如果没有hash，默认为#common
+            const targetId = hash.substring(1); // 去掉#号
+            
+            // 移除所有激活状态
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+                page.style.display = 'none'; // 确保页面立即隐藏，避免闪烁
+            });
+            
+            // 找到匹配的导航链接
+            const navLink = document.querySelector(`.nav-link[href="${hash}"]`);
+            if (navLink) {
+                navLink.classList.add('active');
+                
+                // 激活对应的内容页面
+                const targetPageId = navLink.getAttribute('data-target');
+                const targetPage = document.getElementById(targetPageId);
+                if (targetPage) {
+                    targetPage.style.display = 'block'; // 先显示元素
+                    
+                    // 使用setTimeout确保display变更已应用后再添加active类
+                    setTimeout(() => {
+                        targetPage.classList.add('active');
+                    }, 10);
+                    
+                    // 如果有二级导航，恢复其状态
+                    restoreSubnavState(targetPageId);
+                }
+            } else {
+                // 如果找不到匹配的导航，默认显示常见险种页面
+                document.querySelector('.nav-link[href="#common"]').classList.add('active');
+                const commonPage = document.getElementById('common-page');
+                commonPage.style.display = 'block';
+                
+                setTimeout(() => {
+                    commonPage.classList.add('active');
+                }, 10);
+            }
+        }
+        
+        // 保存二级导航状态
+        function saveSubnavState(pageId, tabId) {
+            sessionStorage.setItem(`${pageId}-subnavTab`, tabId);
+        }
+        
+        // 恢复二级导航状态
+        function restoreSubnavState(pageId) {
+            const savedTabId = sessionStorage.getItem(`${pageId}-subnavTab`);
+            if (savedTabId) {
+                const tabsContainer = document.querySelector(`#${pageId} .subnav-tabs`);
+                if (tabsContainer) {
+                    const tabs = tabsContainer.querySelectorAll('.subnav-tab');
+                    const targetTab = Array.from(tabs).find(tab => tab.getAttribute('data-target') === savedTabId);
+                    
+                    if (targetTab) {
+                        // 触发点击事件以恢复状态
+                        setTimeout(() => {
+                            targetTab.click();
+                        }, 50); // 短延迟确保DOM已完全准备好
+                    }
+                }
+            }
+        }
+        
+        // 设置二级导航的切换功能
+        function setupSubNavigation(tabsId) {
+            const tabsContainer = document.getElementById(tabsId);
+            if (!tabsContainer) return;
+            
+            const tabs = tabsContainer.querySelectorAll('.subnav-tab');
+            const pageId = tabsContainer.closest('.page-content').id;
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // 移除所有标签和页面的active类
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // 获取当前标签对应的目标页面
+                    const targetId = this.getAttribute('data-target');
+                    const subpages = this.closest('.summary-content').querySelectorAll('.subpage');
+                    
+                    // 先隐藏所有子页面并移除active类
+                    subpages.forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
+                    // 激活当前标签
+                    this.classList.add('active');
+                    
+                    // 获取目标子页面并显示
+                    const targetSubpage = document.getElementById(targetId);
+                    if (targetSubpage) {
+                        // 使用setTimeout确保DOM更新有序进行
+                        setTimeout(() => {
+                            targetSubpage.classList.add('active');
+                        }, 10);
+                    }
+                    
+                    // 保存当前的二级导航状态
+                    saveSubnavState(pageId, targetId);
+                });
+            });
+        }
+        
+        // 隐藏加载遮罩
+        function hideLoader() {
+            const loader = document.getElementById('pageLoader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 300); // 等待fade out动画完成
+            }
+        }
         
         // 初始化页面
         document.addEventListener('DOMContentLoaded', function() {
-            // 先加载保存的数据
-            loadInsuranceData();
+            // 页面加载时先显示加载遮罩
+            const loader = document.getElementById('pageLoader');
+            if (loader) {
+                loader.style.opacity = '1';
+                loader.style.display = 'flex';
+            }
+            
+            // 确保所有页面默认隐藏
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.style.display = 'none';
+                page.classList.remove('active');
+            });
+            
+            // 设置页面尺寸，防止布局偏移
+            document.querySelectorAll('.insurance-summary').forEach(el => {
+                el.style.minHeight = '500px';
+            });
             
             renderInsuranceModules();
             
@@ -739,21 +1656,83 @@
                 showModuleDetail(firstModule);
             }
             
-            // 左右滚动按钮 - 改进版
+            // 左右滚动按钮
             const leftArrow = document.querySelector('.scroll-left');
             const rightArrow = document.querySelector('.scroll-right');
             
-            leftArrow.addEventListener('click', function() {
-                if (currentPage > 0) {
-                    scrollToPage(currentPage - 1);
-                }
+            if (leftArrow && rightArrow) {
+                leftArrow.addEventListener('click', function() {
+                    if (currentPage > 0) {
+                        scrollToPage(currentPage - 1);
+                    }
+                });
+                
+                rightArrow.addEventListener('click', function() {
+                    if (currentPage < totalPages - 1) {
+                        scrollToPage(currentPage + 1);
+                    }
+                });
+            }
+            
+            // 导航菜单功能
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // 移除所有激活状态
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    document.querySelectorAll('.page-content').forEach(page => {
+                        page.classList.remove('active');
+                        page.style.display = 'none'; // 先隐藏所有页面
+                    });
+                    
+                    // 设置当前项为激活状态
+                    this.classList.add('active');
+                    
+                    // 显示目标页面
+                    const targetId = this.getAttribute('data-target');
+                    const targetPage = document.getElementById(targetId);
+                    if (targetPage) {
+                        targetPage.style.display = 'block'; // 先设置为显示
+                        
+                        // 使用setTimeout确保display变更已应用
+                        setTimeout(() => {
+                            targetPage.classList.add('active'); // 然后添加active类触发动画
+                        }, 10);
+                    }
+                    
+                    // 更新URL的hash，但不触发hashchange事件
+                    const newHash = this.getAttribute('href');
+                    history.replaceState(null, null, newHash);
+                    
+                    // 如果有二级导航，初始化其状态
+                    restoreSubnavState(targetId);
+                });
             });
             
-            rightArrow.addEventListener('click', function() {
-                if (currentPage < totalPages - 1) {
-                    scrollToPage(currentPage + 1);
-                }
+            // 初始化二级导航
+            setupSubNavigation('overview-tabs');
+            setupSubNavigation('internet-tabs');
+            setupSubNavigation('ant-tabs');
+            
+            // 根据URL的hash导航到对应页面
+            navigateBasedOnHash();
+            
+            // 标记初始化完成
+            isInitialized = true;
+            
+            // 页面内容加载完成后，隐藏加载遮罩
+            window.addEventListener('load', function() {
+                // 等待所有资源加载完毕
+                setTimeout(hideLoader, 300);
             });
+            
+            // 如果页面资源已经加载完毕（从缓存中），立即隐藏加载遮罩
+            if (document.readyState === 'complete') {
+                setTimeout(hideLoader, 300);
+            }
         });
     </script>
 </body>
